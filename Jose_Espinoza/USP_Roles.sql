@@ -1,3 +1,16 @@
+CREATE TABLE [SQM_SECURITY].[TBL_Roles]
+(
+	rolId INT PRIMARY KEY IDENTITY (1,1),
+	rolName VARCHAR(80) NOT NULL,
+	rolCreationDate DATETIME NOT NULL,
+	rolCreatorId INT NOT NULL,
+	rolModificationDate DATETIME NOT NULL,
+	rolModificatorId INT NULL,
+	rolEnable BIT NOT NULL
+);
+
+
+
 CREATE OR ALTER PROC [SQM_SECURITY].[USP_Roles]
 (
     @i_rolId INT = NULL,
