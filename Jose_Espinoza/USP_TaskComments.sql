@@ -1,4 +1,57 @@
-= 'EL PROPIETARIO DEL COMENTARIO ES OBLIGATORIO';
+CREATE TABLE [SQM_GENERAL].[TBL_TaskComments]
+(
+	taskCommentId INT PRIMARY KEY IDENTITY (1,1),
+	taskCommentParentLink INT REFERENCES [SQM_GENERAL].[TBL_Tasks](TaskId) NOT NULL,
+	taskCommentOwner INT REFERENCES [SQM_SECURITY].[TBL_Users] (userId) NOT NULL,
+	taskCommentText NVARCHAR(4000) NOT NULL,
+	taskCommentCreationDate DATETIME NOT NULL,
+	taskCommentCreatorId INT REFERENCES [SQM_SECURITY].[TBL_Users] (userId) NOT NULL,
+	taskCommentModificationDate DATETIME NULL,
+	taskCommentModificatorId INT REFERENCES [SQM_SECURITY].[TBL_Users] (userId) NULL,
+	taskCommentStatus BIT NOT NULL
+);
+
+
+CREATE OR ALTER PROC [SQM_GENERAL].[USP_TaskComments]
+(
+    @i_taskCommentId INT = NULL,
+    @i_taskCommentParentLink INT = NULL,
+    @i_taskCommentOwner INT = NULL,
+    @i_taskCommentText NVARCHAR(4000) = NULL,
+    @i_taskCommentCreationDate DATETIME = NULL,
+    @i_taskCommentCreatorId INT = NULL,
+    @i_taskCommentModificationDate DATETIME = NULL,
+    @i_taskCommentModificatorId INT = NULL,
+    @i_taskCommentStatus BIT = NULL,
+    @i_PageNumber INT = NULL,
+    @i_RowsPerPage INT = NULL,
+    @w_Accion CHAR(1),
+    @o_Numero INT = NULL OUT,
+    @o_MensajeTecnico VARCHAR(500) = NULL OUT,
+    @o_MensajeUsuario VARCHAR(500) = NULL OUT
+)
+AS
+BEGIN
+    DECLARE @w_totalRows INT;
+
+    IF @i_taskCommentCreationDate IS NULL
+        SET @i_taskCommentCreationDate = GETDATE();
+
+    IF @i_taskCommentModificationDate IS NULL
+        SET @i_taskCommentModificationDate = GETDATE();
+
+    -- INSERTAR TASK COMMENT --
+    IF @w_Accion = 'I'
+    BEGIN
+        IF ISNULL(@i_taskCommentParentLink,0) = 0
+        BEGIN
+            SET @o_Numero = 400;
+            SET @o_MensajeUsuario = 'EL ENLACE PADRE (TAREA) DEL COMENTARIO ES OBLIGATORIO';
+        END;
+        ELSE IF ISNULL(@i_taskCommentOwner,0) = 0
+        BEGIN
+            SET @o_Numero = 400;
+            SET @o_MensajeUsuario = 'EL PROPIETARIO DEL COMENTARIO ES OBLIGATORIO';
         END;
         ELSE IF ISNULL(@i_taskCommentText,'') = ''
         BEGIN
